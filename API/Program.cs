@@ -28,6 +28,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProducerService, ProducerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
