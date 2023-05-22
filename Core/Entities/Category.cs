@@ -2,10 +2,10 @@
 {
     public class Category : BaseEntity
     {
-        public string CategoryName { get; set; }
+        public string Name { get; set; }
 
         //Relationships
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Product_Category> Product_Categories { get; set; }
 
     }
 }

@@ -21,8 +21,8 @@ namespace Infrastructure.Services
         }
         public async Task<List<Order>> GetOrdersByUserAsync(string userEmail)
         {
-            var orders = await context.Orders.Include(n => n.OrderItems).ThenInclude(n => n.Product).Include(n => n.User).ToListAsync();
-            orders = orders.Where(n => n.User.Email == userEmail).ToList();
+            var orders = await context.Orders.Include(n => n.OrderItems).ThenInclude(n => n.Product).ToListAsync();
+            orders = orders.Where(n => n.UserEmail == userEmail).ToList();
 
             return orders;
         }
@@ -37,7 +37,7 @@ namespace Infrastructure.Services
 
             var order = new Order()
             {
-                User = user,
+                UserEmail = user.Email,
                 Subtotal = subtotal
             };
 

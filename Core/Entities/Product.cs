@@ -11,13 +11,13 @@ namespace Core.Entities
         public string Name { get; set; }
         public string Image { get; set; }
         public string Description { get; set; }
-        public float Price { get; set; }
+        public double Price { get; set; }
 
         //Relationships
         public int ProducerId { get; set; }
         public Producer Producer { get; set; }
 
-        public ICollection<Category> Categories { get; set; }
+        public ICollection<Product_Category> Product_Categories { get; set; }
 
     }
 }

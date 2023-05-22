@@ -12,19 +12,20 @@ using System.Net;
 
 namespace API.Controllers
 {
-    public class OrderControler : BaseApiController
+    public class OrderController : BaseApiController
     {
         private readonly IOrderService orderService;
         private readonly UserManager<User> userManager;
         private readonly IMapper mapper;
 
-        public OrderControler(IOrderService _orderService, UserManager<User> _userManager, IMapper _mapper)
+        public OrderController(IOrderService _orderService, UserManager<User> _userManager, IMapper _mapper)
         {
             orderService = _orderService;
             userManager = _userManager;
             mapper = _mapper;
         }
 
+        [HttpGet]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -65,7 +66,7 @@ namespace API.Controllers
                 });
             }
         }
-
+        [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

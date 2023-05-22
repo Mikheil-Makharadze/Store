@@ -6,6 +6,7 @@ using Core.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Net;
 
@@ -40,7 +41,7 @@ namespace API.Controllers
                     });
                 }
 
-                var product = await productService.GetByIdAsync(id, n => n.Categories, n => n.Producer);
+                var product = await productService.GetbyIdDetailsAsync(id);
 
                 if (product == null)
                 {
@@ -77,7 +78,8 @@ namespace API.Controllers
         {
             try
             {
-                var products = await productService.GetAllAsync(n => n.Categories, n => n.Producer);
+                var products = await productService.GetAllDetailsAsync();
+
                 return Ok(new APIResponse
                 {
                     StatusCode = HttpStatusCode.OK,
@@ -96,18 +98,18 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] ProductCreateDTO productCategoryDTO)
+        public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] ProductCreateDTO productCreateDTO)
         {
             try
             {
-                if (productCategoryDTO == null)
+                if (productCreateDTO == null)
                 {
                     return BadRequest(new APIResponse
                     {
@@ -118,7 +120,7 @@ namespace API.Controllers
                 }
 
                 var products = await productService.GetAllAsync();
-                if (products.Any(n => n.Name.ToLower() == productCategoryDTO.Name.ToLower()))
+                if (products.Any(n => n.Name.ToLower() == productCreateDTO.Name.ToLower()))
                 {
                     return BadRequest(new APIResponse
                     {
@@ -128,7 +130,7 @@ namespace API.Controllers
                     });
                 }
 
-                Product product = mapper.Map<Product>(productCategoryDTO);
+                Product product = mapper.Map<Product>(productCreateDTO);
                 await productService.AddAsync(product);
 
                 return Created("Products", new APIResponse
@@ -149,7 +151,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -191,7 +193,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -39,10 +39,15 @@ namespace Infrastructure.Data
         public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
-            query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
-            return await query.ToListAsync();
 
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.ToListAsync();
         }
+
 
         public async Task<T> GetByIdAsync(int id) => await dbSet.FirstOrDefaultAsync(n => n.Id == id);
 
@@ -60,7 +65,7 @@ namespace Infrastructure.Data
             await SaveAsync();
         }
 
-        private async Task SaveAsync()
+        protected async Task SaveAsync()
         {
             await Context.SaveChangesAsync();
         }

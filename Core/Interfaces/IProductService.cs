@@ -9,5 +9,9 @@ namespace Core.Interfaces
 {
     public interface IProductService : IGenericRepository<Product>
     {
+        Task<IEnumerable<Product>> GetAllDetailsAsync();
+        Task<Product> GetbyIdDetailsAsync(int Id);
+
+
     }
 }

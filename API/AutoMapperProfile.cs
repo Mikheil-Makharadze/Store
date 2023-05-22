@@ -13,17 +13,15 @@ namespace API
         public AutoMapperProfile()
         {
             //Category
-            CreateMap<Category, CategoryDTO>()
-                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
-                .ReverseMap(); 
+            CreateMap<Category, CategoryDTO>().ReverseMap();
+
             CreateMap<Category, CategoryCreateDTO>()
-                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
+                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Product_Categories.Select(n => n.ProductId)))
                 .ReverseMap();
 
             //Producer
-            CreateMap<Producer, ProducerDTO>()
-                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
-                .ReverseMap();
+            CreateMap<Producer, ProducerDTO>();
+
             CreateMap<Producer, ProducerCreateDTO>()
                 .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
                 .ReverseMap();
@@ -31,17 +29,17 @@ namespace API
 
             //Product
             CreateMap<Product, ProductDTO>()
-                .ForPath(pd => pd.ProducerId, m => m.MapFrom(p => p.ProducerId))
-                .ForPath(pd => pd.CategoriesId, m => m.MapFrom(p => p.Categories.Select(n => n.Id)))
+                .ForPath(pd => pd.Producer, m => m.MapFrom(p => p.Producer))
+                .ForPath(pd => pd.Categories, m => m.MapFrom(p => p.Product_Categories.Select(n => n.Category)))
                 .ReverseMap();
+
             CreateMap<Product, ProductCreateDTO>()
                 .ForPath(pd => pd.ProducerId, m => m.MapFrom(p => p.ProducerId))
-                .ForPath(pd => pd.CategoriesId, m => m.MapFrom(p => p.Categories.Select(n => n.Id)))
+                .ForPath(pd => pd.CategoriesId, m => m.MapFrom(p => p.Product_Categories.Select(n => n.CategoryId)))
                 .ReverseMap();
 
             //Order
             CreateMap<Order, OrderDTO>()
-                .ForMember(pd => pd.UserEmail, m => m.MapFrom(p => p.User.Email))
                 .ForMember(pd => pd.OrderDate, m => m.MapFrom(p => p.OrderDate))
                 .ForMember(pd => pd.Subtotal, m => m.MapFrom(p => p.Subtotal))
                 .ForMember(pd => pd.OrderItems, m => m.MapFrom(p => p.OrderItems));

@@ -28,7 +28,7 @@ namespace API.Controllers
         {
             try
             {
-                var category = await categoryService.GetByIdAsync(id, n => n.Products);
+                var category = await categoryService.GetByIdAsync(id, n => n.Product_Categories);
 
                 if (category == null)
                 {
@@ -107,7 +107,7 @@ namespace API.Controllers
                 }
 
                 var categories = await categoryService.GetAllAsync();
-                if (categories.Any(n => n.CategoryName.ToLower() == createCategoryDTO.CategoryName.ToLower()))
+                if (categories.Any(n => n.Name.ToLower() == createCategoryDTO.Name.ToLower()))
                 {
                     return BadRequest(new APIResponse
                     {

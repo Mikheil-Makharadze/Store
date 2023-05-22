@@ -1,0 +1,65 @@
+﻿@model ProductDTO
+
+@{
+    ViewData["Title"] = "Game details";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <div class="card mb-12">
+            <div class="row g-0">
+                <div class="col-md-12">
+                    <div class="card-header text-white bg-info">
+                        <p class="card-text">
+                            <h5 class="card-title">
+                                @Model.Name
+                            </h5>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="@Model.Image" width="100%" alt="@Model.Name">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <p class="card-text"><b>Description: </b>@Model.Description</p>
+                        @if(Model.Price == 0)
+                        {
+                            <p class="card-text"><b>Price: </b>Free</p>
+                        }
+                        else
+                        {
+                            <p class="card-text"><b>Price: </b>@Model.Price</p>
+                        }
+                            
+                        <p class="card-text">
+                            <b>Producer: </b>                            
+                            <a asp-controller="Producer" asp-action="Details" asp-route-id="@Model.Producer.Id">
+                                <img class="border-info rounded-circle" src="@Model.Producer.Logo" style="max-width: 150px" /></a>
+                        </p>
+                        <p class="card-text">
+                            <b>Category: </b>
+                                @foreach (var item in Model.Categories)
+                                {
+                                    <a asp-controller="Category" asp-action="Details" asp-route-id="@item.Id">@item.Name </a>
+                                }
+                        </p>
+
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card-footer">
+                        <p class="card-text">
+                            <a class="btn btn-outline-primary float-right" asp-action="Index">
+                                Back to List
+                            </a>
+                            <a class="btn btn-success text-white"
+                               asp-controller="Orders"
+                               asp-action="AddItemToShoppingCart" asp-route-id="@Model.Id"><i class="bi bi-cart-plus"></i> Add to Cart (Price @Model.Price.ToString("c"))</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

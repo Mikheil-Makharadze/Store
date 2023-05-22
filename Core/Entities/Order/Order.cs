@@ -13,7 +13,7 @@ namespace Core.Entities.Order
         public double Subtotal { get; set; }
 
         //Relationships
-        public User User { get; set; }
+        public string UserEmail { get; set; }
 
         public ICollection<OrderItem> OrderItems { get; set; }
     }

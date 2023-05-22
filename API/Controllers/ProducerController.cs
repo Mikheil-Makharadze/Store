@@ -11,11 +11,11 @@ using System.Net;
 
 namespace API.Controllers
 {
-    public class ProducerControler : BaseApiController
+    public class ProducerController : BaseApiController
     {
         private readonly IProducerService producerService;
         private readonly IMapper mapper;
-        public ProducerControler(IProducerService _producerService, IMapper _mapper)
+        public ProducerController(IProducerService _producerService, IMapper _mapper)
         {
             producerService = _producerService;
             mapper = _mapper;
@@ -86,7 +86,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -140,7 +140,7 @@ namespace API.Controllers
         }
 
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -182,7 +182,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOrEmploye")]
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
