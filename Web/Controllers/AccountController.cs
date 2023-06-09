@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
@@ -17,7 +16,7 @@ namespace Web.Controllers
 
         public AccountController(IAccountService _authService)
         {
-            this.authService = _authService;
+            authService = _authService;
         }
 
         [HttpGet]

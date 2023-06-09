@@ -55,20 +55,20 @@ namespace Infrastructure.Services
         //    }
         //    await SaveAsync();
         //}
-        public async Task<IEnumerable<Product>> GetAllDetailsAsync()
-        {
-            return await Context.Product.AsNoTracking()
-                  .AsQueryable().Include(n => n.Producer)
-                  .Include(n => n.Product_Categories)
-                  .ThenInclude(n => n.Category).ToListAsync();
-        }
+        //public async Task<IEnumerable<Product>> GetAllDetailsAsync()
+        //{
+        //    return await Context.Product.AsNoTracking()
+        //          .AsQueryable().Include(n => n.Producer)
+        //          .Include(n => n.Product_Categories)
+        //          .ThenInclude(n => n.Category).ToListAsync();
+        //}
 
-        public async Task<Product> GetbyIdDetailsAsync(int Id)
-        {
-            return await Context.Product.AsNoTracking()
-                  .AsQueryable().Where(n => n.Id == Id).Include(n => n.Producer)
-                  .Include(n => n.Product_Categories)
-                  .ThenInclude(n => n.Category).FirstOrDefaultAsync();
-        }
+        //public async Task<Product> GetbyIdDetailsAsync(int Id)
+        //{
+        //    return await Context.Product.AsNoTracking()
+        //          .AsQueryable().Where(n => n.Id == Id).Include(n => n.Producer)
+        //          .Include(n => n.Product_Categories)
+        //          .ThenInclude(n => n.Category).FirstOrDefaultAsync();
+        //}
     }
 }

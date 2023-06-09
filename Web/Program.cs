@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Web.ExceptionFilter;
+using Web.Mapping;
 using Web.Services;
 using Web.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ApiExceptionFilterAttribute>();
+});
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddHttpClient<IProductService, ProductService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -56,10 +62,18 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    //if(app.Environment.IsDevelopment())
+    //{
+    //    app.UseExceptionHandler("/Error-development");
+    //}
+    //else
+    //{
+    app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+
     app.UseHsts();
 }
+//app.UseStatusCodePagesWithReExecute
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

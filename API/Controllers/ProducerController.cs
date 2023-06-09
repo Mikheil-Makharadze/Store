@@ -4,9 +4,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Net;
 
 namespace API.Controllers
@@ -37,7 +35,7 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.NotFound,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Producer does not exist" }
+                        ErrorMessages = new List<string> { "Producer was not found" }
                     });
                 }
 
@@ -97,16 +95,6 @@ namespace API.Controllers
         {
             try
             {
-                if (createProducerDTO == null)
-                {
-                    return BadRequest(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "Producer is null" }
-                    });
-                }
-
                 var producers = await producerService.GetAllAsync();
                 if (producers.Any(n => n.Name.ToLower() == createProducerDTO.Name.ToLower()))
                 {
@@ -114,7 +102,7 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.BadRequest,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Producer already exists" }
+                        ErrorMessages = new List<string> { "Producer with same name already exists" }
                     });
                 }
 
@@ -159,7 +147,7 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.NotFound,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Producer does not exist" }
+                        ErrorMessages = new List<string> { "Producer was not found" }
                     });
                 }
 
@@ -183,27 +171,17 @@ namespace API.Controllers
         }
 
         [Authorize(Policy = "AdminOrEmployee")]
-        [HttpPut]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateProducer([FromBody] ProducerDTO producerDTO)
+        public async Task<ActionResult<APIResponse>> UpdateProducer([FromBody] ProducerUpdateDTO producerDTO)
         {
             try
             {
-                if (producerDTO == null)
-                {
-                    return BadRequest(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "Producer is empty" }
-                    });
-                }
-
                 var existingProducer = await producerService.GetByIdAsync(producerDTO.Id);
                 if (existingProducer == null)
                 {
@@ -215,7 +193,22 @@ namespace API.Controllers
                     });
                 }
 
-                await producerService.UpdateAsync(mapper.Map<Producer>(producerDTO));
+                if (existingProducer.Name != producerDTO.Name)
+                {
+                    var products = await producerService.GetAllAsync();
+                    if (products.Any(n => n.Name.ToLower() == producerDTO.Name.ToLower()))
+                    {
+                        return BadRequest(new APIResponse
+                        {
+                            StatusCode = HttpStatusCode.BadRequest,
+                            IsSuccess = false,
+                            ErrorMessages = new List<string> { "Producer with same name already exists" }
+                        });
+                    }
+                }
+
+                mapper.Map(producerDTO, existingProducer);
+                await producerService.UpdateAsync(existingProducer);
 
                 return Ok(new APIResponse
                 {

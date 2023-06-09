@@ -1,14 +1,15 @@
 ﻿using Web.Models.DTO;
 using Web.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Web.Services.Interfaces
 {
-    public interface IGenericService
+    public interface IGenericService<T,TCreate>
     {
-        Task<APIResponse> GetAllAsync(string token);
-        Task<APIResponse> GetByIdAsync(int id, string token);
-        Task<APIResponse> AddAsync(object entity, string token);
-        Task<APIResponse> UpdateAsync(object entity, string token);
-        Task<APIResponse> DeleteAsync(int id, string token);
+        Task<List<T>> GetAllAsync(string token);
+        Task<T> GetByIdAsync(int id, string token);
+        Task AddAsync(object entity, string token);
+        Task UpdateAsync(int id, object entity, string token);
+        Task DeleteAsync(int id, string token);
     }
 }

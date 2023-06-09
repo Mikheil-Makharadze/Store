@@ -29,19 +29,22 @@
                         }
                         else
                         {
-                            <p class="card-text"><b>Price: </b>@Model.Price</p>
+                            <p class="card-text"><b>Price: </b>@Model.Price$</p>
                         }
                             
                         <p class="card-text">
                             <b>Producer: </b>                            
                             <a asp-controller="Producer" asp-action="Details" asp-route-id="@Model.Producer.Id">
                                 <img class="border-info rounded-circle" src="@Model.Producer.Logo" style="max-width: 150px" /></a>
+                            <text>&nbsp;</text>
+                            <a asp-controller="Producer" asp-action="Details" asp-route-id="@Model.Producer.Id">  @Model.Producer.Name</a>
                         </p>
                         <p class="card-text">
                             <b>Category: </b>
                                 @foreach (var item in Model.Categories)
                                 {
                                     <a asp-controller="Category" asp-action="Details" asp-route-id="@item.Id">@item.Name </a>
+                                    <text>&nbsp;</text>
                                 }
                         </p>
 

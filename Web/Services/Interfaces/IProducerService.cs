@@ -3,7 +3,7 @@ using Web.Models;
 
 namespace Web.Services.Interfaces
 {
-    public interface IProducerService : IGenericService
+    public interface IProducerService : IGenericService<ProducerDTO, ProducerCreateDTO>
     {
 
     }

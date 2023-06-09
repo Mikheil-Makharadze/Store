@@ -6,7 +6,7 @@ using Core.Entities;
 using Core.Entities.Identity;
 using Core.Entities.Order;
 
-namespace API
+namespace API.Mapping
 {
     public class AutoMapperProfile : Profile
     {
@@ -15,27 +15,31 @@ namespace API
             //Category
             CreateMap<Category, CategoryDTO>().ReverseMap();
 
-            CreateMap<Category, CategoryCreateDTO>()
-                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Product_Categories.Select(n => n.ProductId)))
-                .ReverseMap();
+            CreateMap<Category, CategoryCreateDTO>().ReverseMap();
+
+            CreateMap<Category, CategoryUpdateDTO>().ReverseMap();
 
             //Producer
-            CreateMap<Producer, ProducerDTO>();
+            CreateMap<Producer, ProducerDTO>().ReverseMap();
 
             CreateMap<Producer, ProducerCreateDTO>()
-                .ForPath(cd => cd.productsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
+                .ForPath(cd => cd.ProductsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
+                .ReverseMap();
+            CreateMap<Producer, ProducerUpdateDTO>()
+                .ForPath(cd => cd.ProductsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
                 .ReverseMap();
 
 
             //Product
             CreateMap<Product, ProductDTO>()
                 .ForPath(pd => pd.Producer, m => m.MapFrom(p => p.Producer))
-                .ForPath(pd => pd.Categories, m => m.MapFrom(p => p.Product_Categories.Select(n => n.Category)))
                 .ReverseMap();
 
             CreateMap<Product, ProductCreateDTO>()
                 .ForPath(pd => pd.ProducerId, m => m.MapFrom(p => p.ProducerId))
-                .ForPath(pd => pd.CategoriesId, m => m.MapFrom(p => p.Product_Categories.Select(n => n.CategoryId)))
+                .ReverseMap();
+            CreateMap<Product, ProductUpdateDTO>()
+                .ForPath(pd => pd.ProducerId, m => m.MapFrom(p => p.ProducerId))
                 .ReverseMap();
 
             //Order

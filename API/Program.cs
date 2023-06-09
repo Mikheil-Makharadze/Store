@@ -1,4 +1,4 @@
-using API;
+using API.Mapping;
 using Core.Entities.Identity;
 using Core.Interfaces;
 using Infrastructure.Data.DB;
@@ -29,6 +29,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProducerService, ProducerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProduct_CategoryService, Product_CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -41,16 +42,16 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
 
 builder.Services.AddAuthorization(options =>
 {
@@ -125,6 +126,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 IdentityDBContextSeed.SeedUsersAndRolesAsync(app).Wait();
-AppDBContextSeed.Seed(app);
 
 app.Run();

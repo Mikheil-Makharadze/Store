@@ -1,4 +1,6 @@
-﻿namespace Web.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Web.Models.DTO
 {
     public class ProductDTO
     {

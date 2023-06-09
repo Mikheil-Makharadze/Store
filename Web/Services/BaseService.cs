@@ -46,7 +46,6 @@ namespace Web.Services
                         break;
                 }
 
-
                 if (!string.IsNullOrEmpty(apiRequest.Token))
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);

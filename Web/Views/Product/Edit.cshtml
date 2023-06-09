@@ -1,4 +1,4 @@
-﻿@model ProductDTO
+﻿@model ProductUpdateDTO
 
 
 @{
@@ -13,8 +13,8 @@
 
        <div class="row">
             <div class="col-md-8 offset-2">
-                <form asp-action="Create">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <form asp-action="Edit" asp-route-id="@Model.Id">
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     
                     <div class="col-md-4 offset-4 text-center">
                         <img width="100%" id="ImagePreview" />
@@ -40,14 +40,14 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="Producer.Id" class="control-label"></label>
-                                <select asp-for="Producer.Name" class="form-control" asp-items="ViewBag.Producers"></select>
-                                <span asp-validation-for="Producer.Name" class="text-danger"></span>
+                                <label asp-for="ProducerId" class="control-label"></label>
+                                <select asp-for="ProducerId" class="form-control" asp-items="ViewBag.Producers"></select>
+                                <span asp-validation-for="ProducerId" class="text-danger"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="Categories" class="control-label"></label>
-                                <select asp-for="Categories" class="form-control" asp-items="ViewBag.Categoryes" multiple></select>
-                                <span asp-validation-for="Categories" class="text-danger"></span>
+                                <label asp-for="CategoriesId" class="control-label"></label>
+                                <select asp-for="CategoriesId" class="form-control" asp-items="ViewBag.Categoryes" multiple></select>
+                                <span asp-validation-for="CategoriesId" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -59,7 +59,7 @@
                         </div>
                     </div
                     <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-outline-success float-right" />
+                        <input type="submit" value="Update" class="btn btn-outline-success float-right" />
                         <a class="btn btn-outline-secondary" asp-action="Index">Show all</a>
                     </div>
 

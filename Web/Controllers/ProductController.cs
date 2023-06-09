@@ -1,113 +1,162 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+using Web.ExceptionFilter.Exceptions;
 using Web.Models;
 using Web.Models.DTO;
+using Web.Services;
 using Web.Services.Interfaces;
 
 namespace Web.Controllers
 {
     public class ProductController : Controller
     {
-        public IProductService productService;
-        public IProducerService producerService;
-        public ICategoryService categoryService;
-        public ProductController(IProductService _productService, IProducerService _producerService, ICategoryService _categoryService)
+        public readonly IProductService productService;
+        public readonly IProducerService producerService;
+        public readonly ICategoryService categoryService;
+        private readonly IMapper mapper;
+
+        public ProductController(IProductService _productService, IProducerService _producerService, ICategoryService _categoryService, IMapper _mapper)
         {
-                productService = _productService;
-                producerService = _producerService;
-                categoryService = _categoryService;
+            productService = _productService;
+            producerService = _producerService;
+            categoryService = _categoryService;
+            mapper = _mapper;
         }
         public async Task<IActionResult> Index()
         {
-            var response = await productService.GetAllAsync(HttpContext.Session.GetString(SD.SessionToken));
+            await UpdataCategoryViewBag();
 
-            var list = JsonConvert.DeserializeObject<List<ProductDTO>>(Convert.ToString(response.Result));
+            var products = await productService.GetAllDetailsAsync(GetToken());
 
-            return View(list);
+            return View(products);
         }
+
+        //public async Task<IActionResult> Filter(int catgeoryId, string SearchString)
+        //{
+        //    await UpdataCategoryViewBag();
+
+        //    var products = await productService.GetAllAsync(GetToken());
+
+        //    return View(products); 
+        //}
+
         public async Task<IActionResult> Details(int id)
         {
-            var response = await productService.GetByIdAsync(id,HttpContext.Session.GetString(SD.SessionToken));
+            var product = await productService.GetByIdAsync(id, GetToken());
 
-            var list = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response.Result));
+            return View(product);
+        }       
 
-            
-            return View(list);
-        }
-
+        [Authorize(Policy = "AdminOrEmployee")]
         public async Task<IActionResult> Create()
         {
-            var response = await producerService.GetAllAsync(HttpContext.Session.GetString(SD.SessionToken));
-            var producerlist = JsonConvert.DeserializeObject<List<ProducerDTO>>(Convert.ToString(response.Result));
-
-            var response1 = await categoryService.GetAllAsync(HttpContext.Session.GetString(SD.SessionToken));
-            var categorylist = JsonConvert.DeserializeObject<List<CategoryDTO>>(Convert.ToString(response1.Result));
-
-            ViewBag.Producers = new SelectList(producerlist, "Id", "Name");
-            ViewBag.Categoryes = new SelectList(categorylist, "Id", "Name");
-
+            await UpdataCategoryViewBag();
+            await UpdataProducerViewBag();
 
             return View();
         }
 
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPost]
-        public async Task<IActionResult> Create(ProducerCreateDTO product)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ProductCreateDTO product)
         {
-            var response = await productService.AddAsync(product, HttpContext.Session.GetString(SD.SessionToken));
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await productService.AddAsync(product, GetToken());
 
-            var list = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response.Result));
+                    return RedirectToAction("Index");
+                }
+                catch (BadRequestException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
 
-            return RedirectToAction("Index");
+            await UpdataCategoryViewBag();
+            await UpdataProducerViewBag();
+
+            return View(product);         
         }
 
-
+        [Authorize(Policy = "AdminOrEmployee")]
         public async Task<IActionResult> Edit(int id)
         {
-            var response = await producerService.GetAllAsync(HttpContext.Session.GetString(SD.SessionToken));
-            var producerlist = JsonConvert.DeserializeObject<List<ProducerDTO>>(Convert.ToString(response.Result));
+            await UpdataCategoryViewBag();
+            await UpdataProducerViewBag();
 
-            var response1 = await categoryService.GetAllAsync(HttpContext.Session.GetString(SD.SessionToken));
-            var categorylist = JsonConvert.DeserializeObject<List<CategoryDTO>>(Convert.ToString(response1.Result));
+            var product = mapper.Map<ProductUpdateDTO>( await productService.GetByIdAsync(id, GetToken()));
 
-            ViewBag.Producers = new SelectList(producerlist, "Id", "Name");
-            ViewBag.Categoryes = new SelectList(categorylist, "Id", "Name");
-
-
-            var response2 = await productService.GetByIdAsync(id, HttpContext.Session.GetString(SD.SessionToken));
-
-            var list = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response2.Result));
-
-            return View(list);
+            
+            return View(product);
         }
 
+        [Authorize(Policy = "AdminOrEmployee")]
         [HttpPost]
-        public async Task<IActionResult> Edit(ProductDTO product)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ProductUpdateDTO product)
         {
-            var response = await productService.UpdateAsync(product, HttpContext.Session.GetString(SD.SessionToken));
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await productService.UpdateAsync(product.Id, product, GetToken());
 
-            var list = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response.Result));
+                    return RedirectToAction("Index");
+                }
+                catch (BadRequestException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
 
-            return RedirectToAction("Index");
+            await UpdataCategoryViewBag();
+            await UpdataProducerViewBag();
+
+            return View(product); 
         }
 
-
+        [Authorize(Policy = "AdminOrEmployee")]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await productService.GetByIdAsync(id, HttpContext.Session.GetString(SD.SessionToken));
+            var product = await productService.GetByIdAsync(id,GetToken());
 
-            var list = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response.Result));
-
-            return View(list);
+            return View(product);
         }
 
-        [HttpPost]
+        [Authorize(Policy = "AdminOrEmployee")]
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var response = await productService.DeleteAsync(id, HttpContext.Session.GetString(SD.SessionToken));
+            await productService.DeleteAsync(id,GetToken());
 
             return RedirectToAction("Index");
         }
+
+        #region PrivateMethods
+        private string GetToken()
+        {
+            return HttpContext.Session.GetString(SD.SessionToken);
+        }
+
+        private async Task UpdataCategoryViewBag()
+        {
+            var categorys = await categoryService.GetAllAsync(GetToken());
+
+            ViewBag.Categoryes = new SelectList(categorys, "Id", "Name");
+        }
+
+        private async Task UpdataProducerViewBag()
+        {
+            var producers = await producerService.GetAllAsync(GetToken());
+
+            ViewBag.Producers = new SelectList(producers, "Id", "Name");
+        }
+        #endregion
     }
 }

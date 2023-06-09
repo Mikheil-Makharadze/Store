@@ -12,11 +12,13 @@ namespace API.Controllers
     public class CategoryController : BaseApiController
     {
         private readonly ICategoryService categoryService;
+        private readonly IProduct_CategoryService product_Category;
         private readonly IMapper mapper;
 
-        public CategoryController(ICategoryService _categoryService, IMapper _mapper)
+        public CategoryController(ICategoryService _categoryService, IProduct_CategoryService _product_Category, IMapper _mapper)
         {
             categoryService = _categoryService;
+            product_Category = _product_Category;
             mapper = _mapper;
         }
 
@@ -36,7 +38,7 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.NotFound,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Category does not exist" }
+                        ErrorMessages = new List<string> { "Category was not found" }
                     });
                 }
 
@@ -67,11 +69,48 @@ namespace API.Controllers
             try
             {
                 var categories = await categoryService.GetAllAsync();
+
                 return Ok(new APIResponse
                 {
                     StatusCode = HttpStatusCode.OK,
                     IsSuccess = true,
                     Result = mapper.Map<List<CategoryDTO>>(categories)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    IsSuccess = false,
+                    ErrorMessages = new List<string> { ex.ToString() }
+                });
+            }
+        }
+        [HttpGet("AllDetails")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> GetAllCategoriesDetails()
+        {
+            try
+            {
+                var categories = await categoryService.GetAllAsync();
+
+                var categoriesDTO = mapper.Map<List<CategoryDTO>>(categories);
+
+                foreach (var category in categoriesDTO)
+                {
+                    var products = await product_Category.GetByCategoryId(category.Id);
+
+                    category.Products = mapper.Map<List<ProductDTO>>(products);
+                }
+
+
+                return Ok(new APIResponse
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    IsSuccess = true,
+                    Result = mapper.Map<List<CategoryDTO>>(categoriesDTO)
                 });
             }
             catch (Exception ex)
@@ -96,16 +135,6 @@ namespace API.Controllers
         {
             try
             {
-                if (createCategoryDTO == null)
-                {
-                    return BadRequest(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "Category is empty" }
-                    });
-                }
-
                 var categories = await categoryService.GetAllAsync();
                 if (categories.Any(n => n.Name.ToLower() == createCategoryDTO.Name.ToLower()))
                 {
@@ -113,12 +142,20 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.BadRequest,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Category already exists" }
+                        ErrorMessages = new List<string> { "Category with same name already exists" }
                     });
                 }
 
                 var category = mapper.Map<Category>(createCategoryDTO);
                 await categoryService.AddAsync(category);
+
+                if (createCategoryDTO.ProductsId != null)
+                {
+                    foreach (var productId in createCategoryDTO.ProductsId)
+                    {
+                        await product_Category.CreateProduct_Category(productId, category.Id);
+                    }
+                }   
 
                 return Created("Categories", new APIResponse
                 {
@@ -157,7 +194,7 @@ namespace API.Controllers
                     {
                         StatusCode = HttpStatusCode.NotFound,
                         IsSuccess = false,
-                        ErrorMessages = new List<string> { "Category does not exist" }
+                        ErrorMessages = new List<string> { "Category was not found" }
                     });
                 }
 
@@ -181,27 +218,16 @@ namespace API.Controllers
         }
 
         [Authorize(Policy = "AdminOrEmployee")]
-        [HttpPut]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateCategory([FromBody] CategoryDTO categoryDTO)
+        public async Task<ActionResult<APIResponse>> UpdateCategory([FromBody] CategoryUpdateDTO categoryDTO)
         {
             try
             {
-                if (categoryDTO == null)
-                {
-                    return BadRequest(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "Category is empty" }
-                    });
-                }
-
                 var existingCategory = await categoryService.GetByIdAsync(categoryDTO.Id);
                 if (existingCategory == null)
                 {
@@ -215,6 +241,15 @@ namespace API.Controllers
 
                 var updatedCategory = mapper.Map<Category>(categoryDTO);
                 await categoryService.UpdateAsync(updatedCategory);
+
+                await product_Category.RemoveByCategoryId(categoryDTO.Id);
+                if (categoryDTO.ProductsId == null)
+                {
+                    foreach (var productId in categoryDTO.ProductsId)
+                    {
+                        await product_Category.CreateProduct_Category(productId, categoryDTO.Id);
+                    }
+                }
 
                 return Ok(new APIResponse
                 {

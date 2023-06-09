@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IGenericRepository<T> where T : BaseEntity
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties);
