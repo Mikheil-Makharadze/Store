@@ -12,6 +12,8 @@ using System.Net;
 
 namespace API.Controllers
 {
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public class OrderController : BaseApiController
     {
         private readonly IOrderService orderService;
@@ -25,87 +27,62 @@ namespace API.Controllers
             mapper = _mapper;
         }
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [HttpGet("GetUserOrders")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetOrder(string email)
+        public async Task<ActionResult<APIResponse>> GetUserOrders(Email email)
         {
-            try
+            var user = await userManager.FindByEmailAsync(email.email);
+
+            if (user == null)
             {
-                var user = await userManager.FindByEmailAsync(email);
-
-                if (user == null)
+                return NotFound(new APIResponse
                 {
-                    return NotFound(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "User not found" }
-                    });
-                }
-
-                var order = orderService.GetOrdersByUserAsync(email);
-
-                return Ok(new APIResponse
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    IsSuccess = true,
-                    Result = mapper.Map<List<OrderDTO>>(order)
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.NotFound,
                     IsSuccess = false,
-                    ErrorMessages = new List<string> { ex.ToString() }
+                    ErrorMessages = new List<string> { "User not found" }
                 });
             }
+
+            var order = await orderService.GetOrdersByUserAsync(email.email);
+
+            return Ok(new APIResponse { Result = mapper.Map<List<OrderDTO>>(order) });
         }
-        [HttpPost]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+
+        [HttpGet("GetAllOrder")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<APIResponse>> GetAllOrder(SearchString searchString)
+        {
+            var order = await orderService.GetAllOrdersAsync();
+
+            if (searchString.Search != null)
+            {
+                var search = searchString.Search.Trim();
+                order = order.Where(n => n.UserEmail.Contains(search) || n.Status.ToString().Contains(search)).ToList();
+            }
+
+            return Ok(new APIResponse { Result = mapper.Map<List<OrderDTO>>(order) });
+        }
+
+        [HttpPost]
         public async Task<ActionResult<APIResponse>> CreateOrder([FromBody] ICollection<OrderItemDTO> orderItemsDTO, string email)
         {
-            try
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user == null)
             {
-                var user = await userManager.FindByEmailAsync(email);
-
-                if (user == null)
+                return NotFound(new APIResponse
                 {
-                    return NotFound(new APIResponse
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        IsSuccess = false,
-                        ErrorMessages = new List<string> { "User not found" }
-                    });
-                }
-                List<OrderItem> orderItems = mapper.Map<List<OrderItem>>(orderItemsDTO);
-
-                var order = orderService.StoreOrderAsync(orderItems, user);
-
-                return Ok(new APIResponse
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    IsSuccess = true,
-                    Result = order
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
+                    StatusCode = HttpStatusCode.NotFound,
                     IsSuccess = false,
-                    ErrorMessages = new List<string> { ex.ToString() }
+                    ErrorMessages = new List<string> { "User not found" }
                 });
             }
+            List<OrderItem> orderItems = mapper.Map<List<OrderItem>>(orderItemsDTO);
+
+            var order = await orderService.StoreOrderAsync(orderItems, user);
+
+            return Ok(new APIResponse { Result = order });
         }
 
     }

@@ -5,42 +5,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Web.ExceptionFilter.Exceptions;
 using Web.Models;
 using Web.Models.DTO;
-using Web.Services;
 using Web.Services.Interfaces;
 
 namespace Web.Controllers
 {
-    public class ProductController : Controller
+    public class GameController : Controller
     {
         public readonly IProductService productService;
         public readonly IProducerService producerService;
         public readonly ICategoryService categoryService;
         private readonly IMapper mapper;
 
-        public ProductController(IProductService _productService, IProducerService _producerService, ICategoryService _categoryService, IMapper _mapper)
+        public GameController(IProductService _productService, IProducerService _producerService, ICategoryService _categoryService, IMapper _mapper)
         {
             productService = _productService;
             producerService = _producerService;
             categoryService = _categoryService;
             mapper = _mapper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? SearchString)
         {
-            await UpdataCategoryViewBag();
 
-            var products = await productService.GetAllDetailsAsync(GetToken());
+            var products = await productService.GetAllDetailsAsync(SearchString, GetToken());
 
             return View(products);
         }
-
-        //public async Task<IActionResult> Filter(int catgeoryId, string SearchString)
-        //{
-        //    await UpdataCategoryViewBag();
-
-        //    var products = await productService.GetAllAsync(GetToken());
-
-        //    return View(products); 
-        //}
 
         public async Task<IActionResult> Details(int id)
         {

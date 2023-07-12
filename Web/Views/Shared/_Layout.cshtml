@@ -21,7 +21,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Product" asp-action="Index">PlayZone</a>
+                <a class="navbar-brand" asp-controller="Game" asp-action="Index">PlayZone</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -38,16 +38,16 @@
                                 </a>
 
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="nav-link text-dark" asp-controller="Product" asp-action="Index"><i class="bi bi-controller"></i>Games</a>
-                                    <a class="dropdown-item" asp-controller="Producer" asp-action="Index"><i class="bi bi-headset"></i> Producers</a>
-                                    <a class="dropdown-item" asp-controller="Category" asp-action="Index"><i class="bi bi-tags"></i> Categories</a>
+                                    <a class="dropdown-item" asp-controller="Game" asp-action="Index"><i class="bi bi-controller"></i>Games</a>
+                                    <a class="dropdown-item" asp-controller="Producer" asp-action="Index"><i class="bi bi-headset"></i>Producers</a>
+                                    <a class="dropdown-item" asp-controller="Category" asp-action="Index"><i class="bi bi-tags"></i>Categories</a>
                                 </div>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Product" asp-action="Index"><i class="bi bi-controller"></i>Games</a>
+                                <a class="nav-link text-dark" asp-controller="Game" asp-action="Index"><i class="bi bi-controller"></i>Games</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Producer" asp-action="Index"><i class="bi bi-headset"></i>Producers</a>
@@ -55,20 +55,12 @@
                         }
 
                     </ul>
+                    @{
+                        string controllerName = this.ViewContext.RouteData.Values["controller"].ToString(); 
+                    }
 
-                   @* <form asp-controller="Product" asp-action="Filter" method="get">
-                        <p>
-                             <select asp-for="Categories" class="form-control" asp-items="ViewBag.Categoryes" multiple></select>
-                            <select asp-for="MovieGenre" asp-items="Model.Genres">
-                                <option value="">All</option>
-                            </select>
+                    @await Html.PartialAsync("_Search", controllerName)
 
-                            Title: <input type="text" asp-for="SearchString" />
-                            <input type="submit" value="Filter" />
-                        </p>
-                    </form>*@
-
-                    <partial name="_Search.cshtml" />
 
                     @*<ul class="navbar-nav">
                         @await Component.InvokeAsync("ShoppingCartSummary")

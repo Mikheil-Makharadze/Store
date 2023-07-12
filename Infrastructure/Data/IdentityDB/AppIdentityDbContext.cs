@@ -6,8 +6,7 @@ namespace Infrastructure.Data.IdentityDB
 {
     public class AppIdentityDbContext : IdentityDbContext<User>
     {
-        public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options)
-            : base(options)
+        public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options) : base(options)
         {
         }
     }

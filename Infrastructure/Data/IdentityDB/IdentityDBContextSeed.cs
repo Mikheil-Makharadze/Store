@@ -78,6 +78,19 @@ namespace Infrastructure.Data.IdentityDB
                     await userManager.CreateAsync(newCustomer, "Coding@1234?");
                     await userManager.AddToRoleAsync(newCustomer, UserRoles.Customer);
                 }
+
+                var customer2 = await userManager.FindByEmailAsync("mixa@store.com");
+                if (customer2 == null)
+                {
+                    var newCustomer = new User()
+                    {
+                        UserName = "mixa@store.com",
+                        DisplayName = "mixa",
+                        Email = "mixa@store.com"
+                    };
+                    await userManager.CreateAsync(newCustomer, "Coding@1234?");
+                    await userManager.AddToRoleAsync(newCustomer, UserRoles.Customer);
+                }
             }
         }
     }

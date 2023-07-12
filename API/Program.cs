@@ -125,6 +125,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+AppDBContextSeed.SeedAsync(app).Wait();
 IdentityDBContextSeed.SeedUsersAndRolesAsync(app).Wait();
 
 app.Run();

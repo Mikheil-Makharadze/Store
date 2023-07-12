@@ -8,6 +8,6 @@
         public string Description { get; set; }
 
         //Relationships
-        public ICollection<ProductDTO> Products { get; set; }
+        public ICollection<ProductDTO>? Products { get; set; }
     }
 }

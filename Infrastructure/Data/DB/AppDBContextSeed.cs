@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Order;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,7 +12,7 @@ namespace Infrastructure.Data.DB
 {
     public class AppDBContextSeed
     {
-        public static void Seed(IApplicationBuilder applicationBuilder)
+        public static async Task SeedAsync(IApplicationBuilder applicationBuilder)
         {
             using (var serviceScope = applicationBuilder.ApplicationServices.CreateScope())
             {
@@ -344,6 +345,109 @@ namespace Infrastructure.Data.DB
                         }
                     });
 
+                    context.SaveChanges();
+                }
+
+                if (!context.Orders.Any())
+                {
+                    context.Orders.AddRange(new List<Order>()
+                        {
+                            new Order
+                            {
+                                UserEmail = "customer@store.com",
+                                OrderDate = DateTime.Now.AddDays(-3),
+                                Subtotal = 59.99,
+                                Status = OrderStatus.Completed
+                            },
+                            new Order
+                            {
+                                UserEmail = "customer@store.com",
+                                OrderDate = DateTime.Now.AddDays(-1),
+                                Subtotal = 89.98,
+                                Status = OrderStatus.Processing
+                            },
+                            new Order
+                            {
+                                UserEmail = "customer@store.com",
+                                OrderDate = DateTime.Now,
+                                Subtotal = 77.97,
+                                Status = OrderStatus.Delivered
+                            },
+                            new Order
+                            {
+                                UserEmail = "mixa@store.com",
+                                OrderDate = DateTime.Now.AddDays(-3),
+                                Subtotal = 25.95,
+                                Status = OrderStatus.Shipped
+                            },
+                            new Order
+                            {
+                                UserEmail = "mixa@store.com",
+                                OrderDate = DateTime.Now.AddDays(-1),
+                                Subtotal = 0,
+                                Status = OrderStatus.Pending
+                            }
+                        });
+
+                    context.SaveChanges();
+
+                    context.OrderItems.AddRange(new List<OrderItem>
+                        {
+                            new OrderItem
+                            {
+                                OrderId = 1,
+                                Amount = 1,
+                                ProductId = 3,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 2,
+                                ProductId = 1,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 2,
+                                ProductId = 2,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 3,
+                                ProductId = 4,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 3,
+                                ProductId = 5,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 3,
+                                ProductId = 6,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 4,
+                                ProductId = 8,
+                                Amount = 2,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 5,
+                                ProductId = 9,
+                                Amount = 1,
+                            },
+                            new OrderItem
+                            {
+                                OrderId = 5,
+                                ProductId = 11,
+                                Amount = 1,
+                            }
+                        });
                     context.SaveChanges();
                 }
             }

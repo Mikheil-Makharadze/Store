@@ -7,6 +7,7 @@ using Web.Models;
 using Web.Services.Interfaces;
 using Web.Models.DTO.IdentityDTO;
 using System.IdentityModel.Tokens.Jwt;
+using Web.ExceptionFilter.Exceptions;
 
 namespace Web.Controllers
 {
@@ -30,32 +31,26 @@ namespace Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            APIResponse response = await authService.LoginAsync(loginDTO);
-            if (response != null && response.IsSuccess)
+            if (ModelState.IsValid)
             {
-                UserDTO model = JsonConvert.DeserializeObject<UserDTO>(Convert.ToString(response.Result));
-                
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(model.Token);
+                try
+                {
+                    UserDTO model = await authService.LoginAsync(loginDTO);
 
-                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = ClaimsIdentity(model);
 
-                identity.AddClaim(new Claim(ClaimTypes.Email, jwt.Claims.FirstOrDefault(u => u.Type == "email").Value));
-                identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
-                var principal = new ClaimsPrincipal(identity);
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                    HttpContext.Session.SetString(SD.SessionToken, model.Token);
 
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-
-                HttpContext.Session.SetString(SD.SessionToken, model.Token);
-                return RedirectToAction("Index", "Product");
+                    return RedirectToAction("Index", "Game");
+                }
+                catch (BadRequestException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
             }
-            else
-            {
-                ModelState.AddModelError("CustomError", response.ErrorMessages.FirstOrDefault());
-                return View(loginDTO);
-            }
+
+            return View(loginDTO);
         }
 
         [HttpGet]
@@ -64,31 +59,52 @@ namespace Web.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterDTO obj)
         {
-            APIResponse result = await authService.RegisterAsync(obj);
-            if (result != null && result.IsSuccess)
+            if (ModelState.IsValid)
             {
-                return RedirectToAction("Login");
-            }
-            return View();
-        }
+                try
+                {
+                    await authService.RegisterAsync(obj);
 
+                    return RedirectToAction("Login");
+                }
+                catch (BadRequestException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+
+            return View(obj);
+
+        }
 
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
             SignOut("Cookies", "oidc");
             HttpContext.Session.SetString(SD.SessionToken, "");
-            return RedirectToAction("Index", "Product");
+            return RedirectToAction("Index", "Game");
         }
 
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        private ClaimsPrincipal ClaimsIdentity(UserDTO model)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(model.Token);
+
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            identity.AddClaim(new Claim(ClaimTypes.Email, jwt.Claims.FirstOrDefault(u => u.Type == "email").Value));
+            identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
+
+            return new ClaimsPrincipal(identity);
         }
     }
 }

@@ -1,0 +1,40 @@
+﻿@model CategoryDTO
+
+@{
+    ViewData["Title"] = "List of Categorys";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <table class="table">
+            <thead>
+                <tr class="text-center">
+                    <th>@Html.DisplayNameFor(model => model.Name)</th>
+                    <th>Games</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    <td class="align-middle">
+                        @Html.DisplayFor(model => model.Name)
+                    </td>
+                    <td>
+                        @if (Model.Products != null)
+                        {
+                            <div class="row">
+                                @foreach (var product in Model.Products)
+                                {
+                                    <div class="col-md-4">
+                                        <img class="border-info rounded-circle" src="@product.Image" style="max-width: 100px" />
+                                        <br />
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">@product.Name</a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

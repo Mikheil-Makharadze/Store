@@ -21,11 +21,17 @@ namespace Web.Controllers
             productService = _productService;
             mapper = _mapper;   
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? SearchString)
         {
-            var categorys = await categoryService.GetAllDetailsAsync(GetToken());
+            var categorys = await categoryService.GetAllDetailsAsync(SearchString, GetToken());
 
             return View(categorys);
+        }
+        public async Task<IActionResult> Details(int id)
+        {
+            var category = await categoryService.GetByIdAsync(id, GetToken());
+
+            return View(category);
         }
 
         [Authorize(Policy = "AdminOrEmployee")]

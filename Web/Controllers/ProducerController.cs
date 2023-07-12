@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Web.Models.DTO;
 using Web.Models;
 using Web.Services.Interfaces;
@@ -22,9 +21,9 @@ namespace Web.Controllers
             productService = _productService;
             mapper = _mapper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? SearchString)
         {
-            var Producers = await producerService.GetAllAsync(GetToken());
+            var Producers = await producerService.GetAllDetailsAsync(SearchString, GetToken());
 
             return View(Producers);
         }

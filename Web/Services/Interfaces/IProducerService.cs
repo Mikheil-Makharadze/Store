@@ -5,6 +5,5 @@ namespace Web.Services.Interfaces
 {
     public interface IProducerService : IGenericService<ProducerDTO, ProducerCreateDTO>
     {
-
     }
 }

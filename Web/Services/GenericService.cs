@@ -60,6 +60,21 @@ namespace Web.Services
             return JsonConvert.DeserializeObject<List<T>>(Convert.ToString(apiResponse.Result));
         }
 
+        public async Task<List<T>> GetAllDetailsAsync(string? searchString, string token)
+        {
+            var apiResponse = await SendAsync(new APIRequest()
+            {
+                ApiType = SD.ApiType.GET,
+                Url = APIUrl + "/AllDetails",
+                Token = token,
+                Data = new SearchString { Search = searchString }
+            });
+
+            CheckAPIResponse(apiResponse);
+
+            return JsonConvert.DeserializeObject<List<T>>(Convert.ToString(apiResponse.Result));
+        }
+
         public async Task<T> GetByIdAsync(int Id, string token)
         {
             var apiResponse = await SendAsync(new APIRequest()

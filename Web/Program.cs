@@ -25,6 +25,12 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddHttpClient<IAccountService, AccountService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
+builder.Services.AddHttpClient<IAdminService, AdminService>();
+builder.Services.AddScoped <IAdminService, AdminService> ();
+
+builder.Services.AddHttpClient<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDistributedMemoryCache();
@@ -86,6 +92,6 @@ app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Product}/{action=Index}");
+    pattern: "{controller=Game}/{action=Index}");
 
 app.Run();
