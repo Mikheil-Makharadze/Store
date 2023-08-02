@@ -7,7 +7,5 @@ namespace Core.Interfaces
         Task<IEnumerable<Product>> GetByCategoryId(int Id);
         Task<IEnumerable<Category>> GetByProductId(int Id);
         Task CreateProduct_Category(int productId, int categoryId);
-        Task RemoveByCategoryId(int Id);
-        Task removeByProductId(int Id);
     }
 }

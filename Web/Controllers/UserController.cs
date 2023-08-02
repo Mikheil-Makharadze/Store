@@ -55,7 +55,7 @@ namespace Web.Controllers
 
         private string GetToken()
         {
-            return HttpContext.Session.GetString(SD.SessionToken);
+            return HttpContext.Session.GetString(SD.SessionToken)!;
         }
 
     }

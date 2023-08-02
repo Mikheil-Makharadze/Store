@@ -1,4 +1,5 @@
 using API.Mapping;
+using API.Middleware;
 using Core.Entities.Identity;
 using Core.Interfaces;
 using Infrastructure.Data.DB;
@@ -7,6 +8,7 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -25,7 +27,7 @@ builder.Services.AddDbContext<AppIdentityDbContext>(option => {
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppIdentityDbContext>();
 
-
+builder.Services.AddScoped<GlobalExceptionHandler>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProducerService, ProducerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -68,6 +70,13 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+
+    foreach (var name in Directory.GetFiles(basePath, "*.XML", SearchOption.AllDirectories))
+    {
+        options.IncludeXmlComments(name);
+    }
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description =
@@ -110,6 +119,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -33,7 +33,12 @@
                                     <li>
                                         <div class="alert alert-info" role="alert">
                                             <span class="badge bg-success">@item.Amount</span>
-                                            <span class="badge bg-success">@item.</span>
+                                            <span class="badge bg-success">@item.Price</span>
+                                            <div class="col-md-4">
+                                                <img class="border-info rounded-circle" src="@item.Product.Image" style="max-width: 100px" />
+                                                <br />
+                                                <a asp-controller="Game" asp-action="Details" asp-route-id="@item.Product.Id">@item.Product.Name</a>
+                                            </div>
                                         </div>
                                     </li>
                                 }

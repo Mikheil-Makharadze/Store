@@ -130,7 +130,7 @@ namespace Web.Controllers
         #region PrivateMethods
         private string GetToken()
         {
-            return HttpContext.Session.GetString(SD.SessionToken);
+            return HttpContext.Session.GetString(SD.SessionToken)!;
         }
 
         private async Task UpdataCategoryViewBag()

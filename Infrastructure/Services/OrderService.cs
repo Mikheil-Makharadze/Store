@@ -31,7 +31,7 @@ namespace Infrastructure.Services
 
         public async Task<Order> StoreOrderAsync(List<OrderItem> items, User user)
         {
-            var subtotal = 0.0;
+            double subtotal = 0.0;
             foreach (var item in items)
             {
                 subtotal += item.Product.Price * item.Amount;

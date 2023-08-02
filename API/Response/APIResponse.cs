@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 
 namespace API.Response
 {
@@ -11,7 +12,6 @@ namespace API.Response
         public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
         public bool IsSuccess { get; set; } = true;
         public List<string> ErrorMessages { get; set; }
-        public object Result { get; set; }
-
+        public object? Result { get; set; }
     }
 }

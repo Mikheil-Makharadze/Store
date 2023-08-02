@@ -21,10 +21,9 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login()
-        {;
-            LoginDTO obj = new();
-            return View(obj);
+        public IActionResult Login()
+        {
+            return View();
         }
 
         [HttpPost]
@@ -35,12 +34,12 @@ namespace Web.Controllers
             {
                 try
                 {
-                    UserDTO model = await authService.LoginAsync(loginDTO);
+                    var token = await authService.LoginAsync(loginDTO);
 
-                    var principal = ClaimsIdentity(model);
+                    var principal = ClaimsIdentity(token);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                    HttpContext.Session.SetString(SD.SessionToken, model.Token);
+                    HttpContext.Session.SetString(SD.SessionToken, token);
 
                     return RedirectToAction("Index", "Game");
                 }
@@ -94,15 +93,15 @@ namespace Web.Controllers
             return View();
         }
 
-        private ClaimsPrincipal ClaimsIdentity(UserDTO model)
+        private ClaimsPrincipal ClaimsIdentity(string token)
         {
             var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(model.Token);
+            var jwt = handler.ReadJwtToken(token);
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            identity.AddClaim(new Claim(ClaimTypes.Email, jwt.Claims.FirstOrDefault(u => u.Type == "email").Value));
-            identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
+            identity.AddClaim(new Claim(ClaimTypes.Email, jwt.Claims.FirstOrDefault(u => u.Type == "email")!.Value));
+            identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role")!.Value));
 
             return new ClaimsPrincipal(identity);
         }

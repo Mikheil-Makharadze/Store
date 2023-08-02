@@ -1,14 +1,9 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.CustomeException;
 using Infrastructure.Data.DB;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
@@ -22,21 +17,24 @@ namespace Infrastructure.Data
             Context = context;
             dbSet = Context.Set<T>();
         }
-        public async Task AddAsync(T entity)
+        public virtual async Task<int> AddAsync(T entity)
         {
             await dbSet.AddAsync(entity);
             await SaveAsync();
+            return entity.Id;
         }
 
-        public async Task DeleteAsync(T entity)
+        public virtual async Task<int> DeleteAsync(int id)
         {
+            var entity = await GetByIdAsync(id);
             dbSet.Remove(entity);
             await SaveAsync();
+            return entity.Id;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await dbSet.ToListAsync();
+        public virtual async Task<IEnumerable<T>> GetAllAsync() => await dbSet.ToListAsync();
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
+        public virtual async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
 
@@ -49,20 +47,21 @@ namespace Infrastructure.Data
         }
 
 
-        public async Task<T> GetByIdAsync(int id) => await dbSet.FirstOrDefaultAsync(n => n.Id == id);
+        public virtual async Task<T> GetByIdAsync(int id) => await dbSet.FirstOrDefaultAsync(n => n.Id == id) ?? throw new NotFoundException($"{dbSet.EntityType} with Id: {id} was not found");
 
-        public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includeProperties)
+        public virtual async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = dbSet;
             query = includeProperties.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
-            return await query.FirstOrDefaultAsync(n => n.Id == id);
+            return await query.FirstOrDefaultAsync(n => n.Id == id) ?? throw new NotFoundException($"{dbSet.EntityType} with Id: {id} was not found"); ;
         }
 
-        public async Task UpdateAsync(T entity)
+        public virtual async Task<int> UpdateAsync(T entity)
         {
+            var previousEntity = await GetByIdAsync(entity.Id);
             dbSet.Update(entity);
-
             await SaveAsync();
+            return entity.Id;
         }
 
         protected async Task SaveAsync()

@@ -34,7 +34,8 @@ namespace Infrastructure.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Email, user.Email.ToString()),
-                    new Claim(ClaimTypes.Role, roles.FirstOrDefault())
+                    new Claim(ClaimTypes.GivenName, user.DisplayName!.ToString()),
+                    new Claim(ClaimTypes.Role, roles.First())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new(_key, SecurityAlgorithms.HmacSha256Signature)

@@ -19,6 +19,10 @@ namespace API.Mapping
 
             CreateMap<Category, CategoryUpdateDTO>().ReverseMap();
 
+            CreateMap<Product, SelectorOption>()
+                .ForPath(SO => SO.Id, p => p.MapFrom(c => c.Id))
+                .ForPath(SO => SO.Name, p => p.MapFrom(c => c.Name));
+
             //Producer
             CreateMap<Producer, ProducerDTO>().ReverseMap();
 
@@ -28,6 +32,10 @@ namespace API.Mapping
             CreateMap<Producer, ProducerUpdateDTO>()
                 .ForPath(cd => cd.ProductsId, m => m.MapFrom(c => c.Products.Select(n => n.Id)))
                 .ReverseMap();
+
+            CreateMap<Producer, SelectorOption>()
+                .ForPath(SO => SO.Id,  p => p.MapFrom(c => c.Id))
+                .ForPath(SO => SO.Name, p => p.MapFrom(c => c.Name));
 
 
             //Product
@@ -41,6 +49,10 @@ namespace API.Mapping
             CreateMap<Product, ProductUpdateDTO>()
                 .ForPath(pd => pd.ProducerId, m => m.MapFrom(p => p.ProducerId))
                 .ReverseMap();
+
+            CreateMap<Product, SelectorOption>()
+                .ForPath(SO => SO.Id, p => p.MapFrom(c => c.Id))
+                .ForPath(SO => SO.Name, p => p.MapFrom(c => c.Name));
 
             //Order
             CreateMap<Order, OrderDTO>()

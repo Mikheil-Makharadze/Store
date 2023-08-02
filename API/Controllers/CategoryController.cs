@@ -23,6 +23,7 @@ namespace API.Controllers
             mapper = _mapper;
         }
 
+
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetCategory(int id)
@@ -64,7 +65,7 @@ namespace API.Controllers
             if (searchString.Search != null)
             {
                 var search = searchString.Search.Trim();
-                categories = categories.Where(n => n.Name.Contains(search)).ToList();
+                categories = categories.Where(n => n.Name!.Contains(search)).ToList();
             }
 
             var categoriesDTO = mapper.Map<List<CategoryDTO>>(categories);
@@ -87,7 +88,7 @@ namespace API.Controllers
         public async Task<ActionResult<APIResponse>> CreateCategory([FromBody] CategoryCreateDTO createCategoryDTO)
         {
             var categories = await categoryService.GetAllAsync();
-            if (categories.Any(n => n.Name.ToLower() == createCategoryDTO.Name.ToLower()))
+            if (categories.Any(n => n.Name!.ToLower() == createCategoryDTO.Name.ToLower()))
             {
                 return BadRequest(new APIResponse
                 {
@@ -119,20 +120,9 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> DeleteCategory(int id)
         {
-            var category = await categoryService.GetByIdAsync(id);
-            if (category == null)
-            {
-                return NotFound(new APIResponse
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    IsSuccess = false,
-                    ErrorMessages = new List<string> { "Category was not found" }
-                });
-            }
+            await categoryService.DeleteAsync(id);
 
-            await categoryService.DeleteAsync(category);
-
-            return Ok(new APIResponse { Result = category.Id });
+            return Ok(new APIResponse { Result = id });
         }
 
         [Authorize(Policy = "AdminOrEmployee")]
@@ -142,30 +132,16 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> UpdateCategory([FromBody] CategoryUpdateDTO categoryDTO)
         {
-            var existingCategory = await categoryService.GetByIdAsync(categoryDTO.Id);
-            if (existingCategory == null)
-            {
-                return NotFound(new APIResponse
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    IsSuccess = false,
-                    ErrorMessages = new List<string> { "Category was not found" }
-                });
-            }
+            //await categoryService.UpdateAsync(mapper.Map<Category>(categoryDTO));
 
-            var updatedCategory = mapper.Map<Category>(categoryDTO);
-            await categoryService.UpdateAsync(updatedCategory);
+            //await product_Category.RemoveByCategoryId(categoryDTO.Id);
 
-            await product_Category.RemoveByCategoryId(categoryDTO.Id);
-            if (categoryDTO.ProductsId == null)
-            {
-                foreach (var productId in categoryDTO.ProductsId)
-                {
-                    await product_Category.CreateProduct_Category(productId, categoryDTO.Id);
-                }
-            }
+            //foreach (var productId in categoryDTO.ProductsId!)
+            //{
+            //    await product_Category.CreateProduct_Category(productId, categoryDTO.Id);
+            //}
 
-            return Ok(new APIResponse { Result = updatedCategory.Id });
+            return Ok(new APIResponse { Result = categoryDTO.Id });
         }
     }
 }

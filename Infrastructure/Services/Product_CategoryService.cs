@@ -36,20 +36,5 @@ namespace Infrastructure.Services
             return await Context.Product_Categories.Where(n => n.ProductId == Id).Select(n => n.Category).ToListAsync();
         }
 
-        public async Task RemoveByCategoryId(int Id)
-        {
-            var product_category = await Context.Product_Categories.Where(n => n.CategoryId == Id).ToListAsync();
-            Context.Product_Categories.RemoveRange(product_category);
-
-            await Context.SaveChangesAsync();
-        }
-
-        public async Task removeByProductId(int Id)
-        {
-            var product_category = await Context.Product_Categories.Where(n => n.ProductId == Id).ToListAsync();
-            Context.Product_Categories.RemoveRange(product_category);
-
-            await Context.SaveChangesAsync();
-        }
     }
 }

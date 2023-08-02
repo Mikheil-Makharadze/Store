@@ -1,6 +1,4 @@
-﻿using Core.Entities;
-
-namespace API.DTO
+﻿namespace API.DTO
 {
     public class ProductDTO
     {

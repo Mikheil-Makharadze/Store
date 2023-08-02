@@ -13,7 +13,7 @@ namespace Web.Services
         {
             APIUrl = configuration.GetValue<string>("ServiceUrls:StoreAPI");
         }
-        public async Task<UserDTO> LoginAsync(LoginDTO loginDto)
+        public async Task<string> LoginAsync(LoginDTO loginDto)
         {
             var apiResponse = await SendAsync(new APIRequest()
             {
@@ -24,8 +24,10 @@ namespace Web.Services
 
             CheckAPIResponse(apiResponse);
 
-            return JsonConvert.DeserializeObject<UserDTO>(Convert.ToString(apiResponse.Result));
+            string resultJson = JsonConvert.SerializeObject(apiResponse.Result);
+            string deserializedResult = JsonConvert.DeserializeObject<string>(resultJson);
 
+            return deserializedResult;
         }
 
         public async Task RegisterAsync(RegisterDTO registerDTO)

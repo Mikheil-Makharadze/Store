@@ -58,7 +58,7 @@ namespace API.Controllers
             if (searchString.Search != null)
             {
                 var search = searchString.Search.Trim();
-                order = order.Where(n => n.UserEmail.Contains(search) || n.Status.ToString().Contains(search)).ToList();
+                order = order.Where(n => n.UserEmail!.Contains(search) || n.Status.ToString().Contains(search)).ToList();
             }
 
             return Ok(new APIResponse { Result = mapper.Map<List<OrderDTO>>(order) });

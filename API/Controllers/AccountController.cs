@@ -23,15 +23,12 @@ namespace API.Controllers
         }
 
         [HttpPost("Login")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> Login(LoginDTO loginDto)
         {
             var user = await userManager.FindByEmailAsync(loginDto.Email);
 
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-
 
             if (!result.Succeeded)
             {
@@ -42,26 +39,12 @@ namespace API.Controllers
                     ErrorMessages = new List<string> { "Email or Password is incorrect" }
                 });
             }
-
-            var newUser = new UserDTO
-            {
-                Email = user.UserName,
-                DisplayName = user.DisplayName,
-                Token = await tokenService.CreateToken(user)
-            };
-
-            return Ok(new APIResponse
-            {
-                StatusCode = HttpStatusCode.OK,
-                IsSuccess = true,
-                Result = newUser
-            });
+            var result1 = await tokenService.CreateToken(user);
+            return Ok(new APIResponse { Result = await tokenService.CreateToken(user) });
         }
 
         [HttpPost("Register")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> Register(RegisterDTO registerDto)
         {
             var email = await userManager.FindByEmailAsync(registerDto.Email);
@@ -100,11 +83,7 @@ namespace API.Controllers
 
             await userManager.AddToRoleAsync(user, UserRoles.Customer);
 
-            return Ok(new APIResponse
-            {
-                StatusCode = HttpStatusCode.OK,
-                IsSuccess = true
-            });
+            return Ok(new APIResponse());
         }
     }
 }

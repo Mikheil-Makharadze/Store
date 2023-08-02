@@ -55,7 +55,7 @@ namespace Web.Services
 
                 var apiContent = await apiResponse.Content.ReadAsStringAsync();
 
-                return JsonConvert.DeserializeObject<APIResponse>(apiContent); ;
+                return JsonConvert.DeserializeObject<APIResponse>(apiContent);
 
             }
             catch (Exception e)

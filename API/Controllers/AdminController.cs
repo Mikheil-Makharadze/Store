@@ -2,6 +2,8 @@
 using API.DTO.IdentityDTO;
 using API.Response;
 using Core.Entities.Identity;
+using Core.Interfaces;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +19,13 @@ namespace API.Controllers
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly ITokenService tokenService;
 
-        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AdminController(UserManager<User> _userManager, SignInManager<User> _signInManager, ITokenService _tokenService)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            userManager = _userManager;
+            signInManager = _signInManager;
+            tokenService = _tokenService;
         }
 
         [HttpGet("User")]
@@ -40,16 +44,7 @@ namespace API.Controllers
                 });
             }
 
-            var userRoles = await userManager.GetRolesAsync(user);
-
-            var usersInfo = new UserWithRoleDTO
-            {
-                DisplayName = user.DisplayName,
-                Email = user.Email,
-                Role = userRoles.FirstOrDefault()
-            };
-
-            return Ok( new APIResponse { Result = usersInfo });
+            return Ok( new APIResponse { Result = await tokenService.CreateToken(user) });
         }
 
         [HttpGet("Users")]
@@ -57,27 +52,18 @@ namespace API.Controllers
         {
             var users = await userManager.Users.ToListAsync();
 
-            var usersInfo = new List<UserWithRoleDTO>();
-
-            foreach (var user in users)
-            {
-                var userRoles = await userManager.GetRolesAsync(user);
-
-                var userDTO = new UserWithRoleDTO
-                {
-                    DisplayName = user.DisplayName,
-                    Email = user.Email,
-                    Role = userRoles.FirstOrDefault()
-                };
-
-                usersInfo.Add(userDTO);
-            }
+            var usersInfo = new List<string>();
 
             if (searchString.Search != null)
             {
                 var search = searchString.Search.Trim();
-                usersInfo = usersInfo.Where(n => n.Email.Contains(search) || n.Role.Contains(search)).ToList();
+                users = users.Where(n => n.Email.Contains(search)).ToList();
             }
+
+            foreach (var user in users)
+            {
+                usersInfo.Add(await tokenService.CreateToken(user));
+            }            
 
             return Ok( new APIResponse { Result = usersInfo });
         }        
@@ -102,9 +88,6 @@ namespace API.Controllers
             await userManager.RemoveFromRolesAsync(user, roles);
 
             await userManager.AddToRoleAsync(user, userUpdate.Role);
-
-            await signInManager.SignOutAsync();
-            await signInManager.SignInAsync(user, isPersistent: false);
 
             return Ok(new APIResponse
             {

@@ -2,7 +2,7 @@
 {
     public class OrderItem : BaseEntity
     {
-        public int Amount { get; set; }
+        public int Amount { get; set; } = 0;
 
         //Relationships
         public int ProductId { get; set; }
